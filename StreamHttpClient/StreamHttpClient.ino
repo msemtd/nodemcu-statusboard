@@ -44,6 +44,12 @@ void setup() {
         set_digital_outs((t%2) ? 0xFF : 0x00);
     }
     WiFiMulti.addAP(PRIVATE_WIFI_AP_NAME, PRIVATE_WIFI_AP_PASS);
+#ifdef PRIVATE_WIFI_AP_NAME2
+    WiFiMulti.addAP(PRIVATE_WIFI_AP_NAME2, PRIVATE_WIFI_AP_PASS2);
+#endif
+#ifdef PRIVATE_WIFI_AP_NAME3
+    WiFiMulti.addAP(PRIVATE_WIFI_AP_NAME3, PRIVATE_WIFI_AP_PASS3);
+#endif
 }
 
 void loop() {
