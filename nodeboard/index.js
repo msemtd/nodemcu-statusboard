@@ -86,16 +86,22 @@ app.listen(port, function () {
 function getBoardHtml(board, val) {
     // get binary values from 2 hex digits
     var hexval = ("00" + val.toString(16)).slice(-2);
+    var binval_str = ("00000000" + val.toString(2)).slice(-8);
+    var rowtext = "";
+    var bitc = 0;
+    for (var v of binval_str) {
+        rowtext += `
+        <tr> <td>BIT ${bitc}</td> <td>${v}</td> </tr>
+        `;
+        bitc++;
+    }
     var table = `
     <table border="1">
     <tr>
-    <td>Row 1, Column 1</td>
-    <td>Row 1, Column 2</td>
+    <th>Item</th>
+    <th>Value</th>
     </tr>
-    <tr>
-    <td>Row 2, Column 1</td>
-    <td>Row 2, Column 2</td>
-    </tr>
+    ${rowtext}
     </table>
     `;
     var html = `
@@ -106,6 +112,7 @@ function getBoardHtml(board, val) {
     <BODY>
     <H1>STATUSBOARD ${board}</H1>
     <DIV>VALUE = 0x${hexval}</DIV>
+    <DIV>VALUE(BIN) = ${binval_str}</DIV>
     ${table}
     </BODY>
     </HTML>
