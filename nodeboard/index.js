@@ -7,19 +7,19 @@ TODO: -
 * security - user logins, tokens etc.
 *
 */
+var port = 9912;
 require('console-stamp')( console, {  } );
 var express = require('express');
 var app = express();
 var path = require('path');
-var port = 9912;
 var favicon = require('serve-favicon');
-app.disable('x-powered-by');
+app.disable('x-powered-by'); // security by obscurity: mask attack surface
 app.use(favicon(path.join(__dirname, 'favicon.ico')));
 app.locals.boards = require('./boards');
 app.locals.boards.load();
 
 // TODO: currently only supporting one board
-var boardval = 77;
+var boardval = 0x00;
 
 app.get('/', function (req, res) {
     console.log('serving root');
@@ -37,10 +37,12 @@ sbr.get('/:board(\\d+)/:style?', function(req, res, next){
     console.log('sbr for '+ board + ' on ' + req.originalUrl + ' with style ' + style);
     // TODO lookup board value and serve in style
     if((style) && (style == 'nodemcu')) {
-        res.send('TADA for ' + req.baseUrl + ':::' + board + '===0x' + boardval.toString(16));
+        // NodeMCU style plain text response
+        res.send('BOARD:' + board + ':' + boardval.toString(16));
     } else {
-        // TODO dish up default HTML style
-        next();
+        // HTML style as a nice table
+        avoidCache(res)
+        res.send(getBoardHtml(board, boardval));
     }
 });
 // GET setter - BAD API!!!!
@@ -81,3 +83,38 @@ app.listen(port, function () {
     console.log('app listening on port '+ port);
 });
 
+function getBoardHtml(board, val) {
+    // get binary values from 2 hex digits
+    var hexval = ("00" + val.toString(16)).slice(-2);
+    var table = `
+    <table border="1">
+    <tr>
+    <td>Row 1, Column 1</td>
+    <td>Row 1, Column 2</td>
+    </tr>
+    <tr>
+    <td>Row 2, Column 1</td>
+    <td>Row 2, Column 2</td>
+    </tr>
+    </table>
+    `;
+    var html = `
+    <HTML>
+    <head>
+    <title>STATUSBOARD ${board}</title>
+    </head>
+    <BODY>
+    <H1>STATUSBOARD ${board}</H1>
+    <DIV>VALUE = 0x${hexval}</DIV>
+    ${table}
+    </BODY>
+    </HTML>
+    `;
+    return html;
+}
+
+function avoidCache(res) {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+    res.setHeader("Expires", "0"); // Proxies.
+}
