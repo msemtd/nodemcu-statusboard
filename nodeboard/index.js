@@ -47,16 +47,16 @@ sbr.get('/:board(\\d+)/:style?', function(req, res, next){
 });
 // GET setter - BAD API!!!!
 // requires board id of digits and a hex value
-sbr.get('set/:board(\\d+)/:newval(0x[0-9a-fA-F]{2})', function(req, res, next){
+sbr.get('/set/:board(\\d+)/:newval(0x[0-9a-fA-F]{2})', function(req, res, next){
     var board = req.params.board;
-    var newval = parseInt(req.params.newval, 10);
+    var newval = parseInt(req.params.newval, 16);
     console.log('sbr set '+ board + ' to ' + newval);
     // TODO lookup board value and serve in style
     if (isNaN(newval)) {
         next();
     } else {
         boardval = newval;
-        res.send('OK set board '+ board + ' to ' + newval);
+        res.send('OK set board '+ board + ' to decimal ' + newval);
     }
 });
 app.use("/sb", sbr);
