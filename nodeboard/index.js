@@ -62,19 +62,6 @@ sbr.get('/set/:board(\\d+)/:newval(0x[0-9a-fA-F]{2})', function(req, res, next){
 });
 app.use("/sb", sbr);
 
-app.get('/statusboards/1/nodemcutest', function (req, res) {
-    console.log('serving nodemcu');
-    res.send('/statusboards/1/nodemcutest:'+boardval);
-});
-
-app.get(/^\/statusboards\/set\/(\d+)\/(\d+)$/, function (req, res) {
-    var board = req.params[0];
-    var val = req.params[1];
-    console.log("setting a board status: '"+ board + "' to '" + val + "'");
-    boardval = val;
-    res.send(' OK '+'/statusboards set to '+boardval);
-});
-
 app.use(function(err, req, res, next) {
     console.error(err.stack);
     res.status(500).send('Something broke!');

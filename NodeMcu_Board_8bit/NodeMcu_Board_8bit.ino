@@ -18,7 +18,7 @@ ESP8266WiFiMulti WiFiMulti;
 #define PRIVATE_WIFI_AP_PASS "your_ap_password"
 #define PRIVATE_NODEJS_SERVER "www.your_server.org"
 #define PRIVATE_NODEJS_PORT 80
-#define PRIVATE_NODEJS_PATH "/statusboards/1/nodemcutest"
+#define PRIVATE_NODEJS_PATH "/sb/1/nodemcu"
 #endif
 
 bool testmode = false;
