@@ -25,13 +25,16 @@ ESP8266WiFiMulti WiFiMulti;
 
 bool testmode = false;
 
+uint32_t getFreq = 10000;
+uint32_t getLast = 0;
+
 // this is our mapping from bits to pin constants
 // we don't want to use D4 on the NodeMCU - that's the blue LED!
 const uint8_t pmap[8] = { D1, D2, D3, 0xFF, D5, D6, D7, D8 };
 
 void setup() {
     USE_SERIAL.begin(115200);
-    //USE_SERIAL.setDebugOutput(true);
+    USE_SERIAL.setDebugOutput(true);
     USE_SERIAL.println();
     USE_SERIAL.println();
     USE_SERIAL.println();
@@ -73,49 +76,63 @@ void set_digital_outs(uint8_t b) {
 }
 
 void normal_mode() {
-    // wait for WiFi connection
-    if((WiFiMulti.run() == WL_CONNECTED)) {
-        HTTPClient http;
-        USE_SERIAL.print("[HTTP] begin...\n");
-        // configure server and url
-        http.begin(PRIVATE_NODEJS_SERVER, 9912, PRIVATE_NODEJS_PATH);
-        USE_SERIAL.print("[HTTP] GET...\n");
-        // start connection and send HTTP header
-        int httpCode = http.GET();
-        if(httpCode > 0) {
-            // HTTP header has been send and Server response header has been handled
-            USE_SERIAL.printf("[HTTP] GET... code: %d\n", httpCode);
-            // file found at server
-            if(httpCode == HTTP_CODE_OK) {
-                // get length of document (is -1 when Server sends no Content-Length header)
-                int len = http.getSize();
-                // create buffer for read
-                uint8_t buff[128] = { 0 };
-                // get tcp stream
-                WiFiClient * stream = http.getStreamPtr();
-                // read all data from server
-                while(http.connected() && (len > 0 || len == -1)) {
-                    // get available data size
-                    size_t size = stream->available();
-                    if(size) {
-                        // read up to 128 byte
-                        int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
-                        // write it to Serial
-                        USE_SERIAL.write(buff, c);
-                        if(len > 0) {
-                            len -= c;
-                        }
-                    }
-                    delay(1);
-                }
-                USE_SERIAL.println();
-                USE_SERIAL.print("[HTTP] connection closed or file end.\n");
-            }
-        } else {
-            USE_SERIAL.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-        }
-        http.end();
+    uint32_t now = millis();
+    if(now - getLast >= getFreq) {
+        getLast = now;
+        getServerData();
     }
-    delay(10000);
+    while(USE_SERIAL.available()){
+      proc_diag_input(USE_SERIAL.read());
+    }
+}
+
+void proc_diag_input(int data) {
+  // TODO buffer and inspect - look for markers etc.
+}
+
+void getServerData() {
+    // wait for WiFi connection
+    if((WiFiMulti.run() != WL_CONNECTED))
+        return;
+    HTTPClient http;
+    USE_SERIAL.print("[HTTP] begin...\n");
+    // configure server and url
+    http.begin(PRIVATE_NODEJS_SERVER, PRIVATE_NODEJS_PORT, PRIVATE_NODEJS_PATH);
+    USE_SERIAL.print("[HTTP] GET...\n");
+    // start connection and send HTTP header
+    int httpCode = http.GET();
+    if(httpCode > 0) {
+        // HTTP header has been send and Server response header has been handled
+        USE_SERIAL.printf("[HTTP] GET... code: %d\n", httpCode);
+        // file found at server
+        if(httpCode == HTTP_CODE_OK) {
+            // get length of document (is -1 when Server sends no Content-Length header)
+            int len = http.getSize();
+            // create buffer for read
+            uint8_t buff[128] = { 0 };
+            // get tcp stream
+            WiFiClient * stream = http.getStreamPtr();
+            // read all data from server
+            while(http.connected() && (len > 0 || len == -1)) {
+                // get available data size
+                size_t size = stream->available();
+                if(size) {
+                    // read up to 128 byte
+                    int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+                    // write it to Serial
+                    USE_SERIAL.write(buff, c);
+                    if(len > 0) {
+                        len -= c;
+                    }
+                }
+                delay(1);
+            }
+            USE_SERIAL.println();
+            USE_SERIAL.print("[HTTP] connection closed or file end.\n");
+        }
+    } else {
+        USE_SERIAL.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    }
+    http.end();
 }
 
