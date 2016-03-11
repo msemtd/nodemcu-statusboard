@@ -34,7 +34,8 @@ var sbr = express.Router();
 sbr.get('/:board(\\d+)/:style?', function(req, res, next){
     var board = req.params.board;
     var style = req.params.style;
-    console.log('sbr for '+ board + ' on ' + req.originalUrl + ' with style ' + style);
+    var remote = req.connection.remoteAddress;
+    console.log('sbr for '+ board + ' on ' + req.originalUrl + ' with style ' + style + ' for ' + remote);
     // TODO lookup board value and serve in style
     if((style) && (style == 'nodemcu')) {
         // NodeMCU style plain text response
