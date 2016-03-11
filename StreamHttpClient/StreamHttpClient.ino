@@ -9,8 +9,6 @@
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
 
-#define USE_SERIAL Serial
-
 ESP8266WiFiMulti WiFiMulti;
 
 #include "private.h"
@@ -32,17 +30,19 @@ uint32_t getLast = 0;
 // we don't want to use D4 on the NodeMCU - that's the blue LED!
 const uint8_t pmap[8] = { D1, D2, D3, 0xFF, D5, D6, D7, D8 };
 
+#define DIAG_INPUT_MAX 128
+String consoleInput = "";
+
 void setup() {
-    USE_SERIAL.begin(115200);
-    USE_SERIAL.setDebugOutput(true);
-    USE_SERIAL.println();
-    USE_SERIAL.println();
-    USE_SERIAL.println();
+    consoleInput.reserve(DIAG_INPUT_MAX);
+    Serial.begin(115200);
+    Serial.setDebugOutput(true);
+    Serial.println();
     for(uint8_t i = 0; i < 8; i++)
       if(pmap[i] != 0xFF) pinMode(pmap[i], OUTPUT);
     for(uint8_t t = 4; t > 0; t--) {
-        USE_SERIAL.printf("[SETUP] WAIT %d...\n", t);
-        USE_SERIAL.flush();
+        Serial.printf("[SETUP] WAIT %d...\n", t);
+        Serial.flush();
         delay(1000);
         set_digital_outs((t%2) ? 0xFF : 0x00);
     }
@@ -70,7 +70,7 @@ void loop() {
 }
 
 void set_digital_outs(uint8_t b) {
-  USE_SERIAL.printf("set_digital_outs %02X...\n", b);
+  Serial.printf("set_digital_outs %02X...\n", b);
   for(uint8_t i = 0; i < 8; i++)
     if(pmap[i] != 0xFF) digitalWrite(pmap[i], bitRead(b, i));
 }
@@ -81,13 +81,47 @@ void normal_mode() {
         getLast = now;
         getServerData();
     }
-    while(USE_SERIAL.available()){
-      proc_diag_input(USE_SERIAL.read());
+    while(Serial.available()){
+      proc_console_input(Serial.read());
     }
 }
 
-void proc_diag_input(int data) {
-  // TODO buffer and inspect - look for markers etc.
+void proc_console_input(int data) {
+    // TODO buffer and inspect - look for markers etc.
+    // input is processed upon CR or NL...
+    if(data == 0x0A || data == 0x0D){
+        proc_console_command();
+        consoleInput = "";
+        return;
+    }
+    if(consoleInput.length() < DIAG_INPUT_MAX){
+        consoleInput += (char)data;
+        return;
+    }
+    // would overflow: just truncate (could retain buffer but meh!)
+    consoleInput = "";
+}
+
+void proc_console_command() {
+    // app-specific console command input
+    consoleInput.trim();
+    int len = consoleInput.length();
+    if(!len) 
+        return;
+    char cmd = consoleInput[0];
+    if(cmd == '?') {
+        Serial.printf("\n? = HELP COMMAND\n");
+        Serial.printf("\nCommands available: A, B, C (case sensitive).\n");
+        // blah, blah, blah...
+    } else if(cmd == 'A') {
+        Serial.printf("\nAY?\n");
+    } else if(cmd == 'B') {
+        Serial.printf("\nBe what?\n");
+    } else if(cmd == 'C') {
+        Serial.printf("\nI don't see anything!\n");
+    } else {
+        Serial.printf("\nI don't understand the command %c - try '?' for help.\n");
+    }
 }
 
 void getServerData() {
@@ -95,15 +129,15 @@ void getServerData() {
     if((WiFiMulti.run() != WL_CONNECTED))
         return;
     HTTPClient http;
-    USE_SERIAL.print("[HTTP] begin...\n");
+    Serial.print("[HTTP] begin...\n");
     // configure server and url
     http.begin(PRIVATE_NODEJS_SERVER, PRIVATE_NODEJS_PORT, PRIVATE_NODEJS_PATH);
-    USE_SERIAL.print("[HTTP] GET...\n");
+    Serial.print("[HTTP] GET...\n");
     // start connection and send HTTP header
     int httpCode = http.GET();
     if(httpCode > 0) {
         // HTTP header has been send and Server response header has been handled
-        USE_SERIAL.printf("[HTTP] GET... code: %d\n", httpCode);
+        Serial.printf("[HTTP] GET... code: %d\n", httpCode);
         // file found at server
         if(httpCode == HTTP_CODE_OK) {
             // get length of document (is -1 when Server sends no Content-Length header)
@@ -120,18 +154,18 @@ void getServerData() {
                     // read up to 128 byte
                     int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
                     // write it to Serial
-                    USE_SERIAL.write(buff, c);
+                    Serial.write(buff, c);
                     if(len > 0) {
                         len -= c;
                     }
                 }
                 delay(1);
             }
-            USE_SERIAL.println();
-            USE_SERIAL.print("[HTTP] connection closed or file end.\n");
+            Serial.println();
+            Serial.print("[HTTP] connection closed or file end.\n");
         }
     } else {
-        USE_SERIAL.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+        Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
     }
     http.end();
 }
