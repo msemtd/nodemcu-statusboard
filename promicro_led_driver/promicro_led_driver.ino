@@ -13,6 +13,10 @@ static uint8_t en_map = 0xFF;
                         
 #define DIAG_INPUT_MAX 128
 String consoleInput = "";
+
+static uint32_t getLast = 0;
+static uint32_t getFreq = 1000;
+static uint8_t testModeState = 0;
                            
 void setup() {
     TX_RX_LED_INIT;
@@ -29,20 +33,26 @@ void setup() {
     }
 }
 
+bool itemOk(uint8_t item) {
+    return (item >= 0 && item < 8);
+}
 void pinModeAll(int m) {
     for (int i = 0; i < 16; i++) {
         pinMode(d_map[i], m);
     }
 }
 void setItemRed(uint8_t item) {
+    if(!itemOk(item)) return;
     digitalWrite(d_map[(item*2) + 1], LOW);
     digitalWrite(d_map[item*2], HIGH);
 }
 void setItemGreen(uint8_t item) {
+    if(!itemOk(item)) return;
     digitalWrite(d_map[item*2], LOW);
     digitalWrite(d_map[(item*2) + 1], HIGH);
 }
 void setItemOff(uint8_t item) {
+    if(!itemOk(item)) return;
     digitalWrite(d_map[item*2], LOW);
     digitalWrite(d_map[(item*2) + 1], LOW);
 }
@@ -62,10 +72,6 @@ void enableItems(uint8_t val) {
     en_map = val;
 }
 
-static uint32_t getLast = 0;
-static uint32_t getFreq = 1000;
-static uint8_t testModeState = 0;
-
 void loop() {
     static uint32_t now;
     now = millis();
@@ -75,6 +81,13 @@ void loop() {
     }
     while(Serial.available()){
         proc_console_input(Serial.read());
+    }
+    while(Serial1.available()){
+        int i = Serial1.read();
+        Serial.print("nodemcu: ");
+        Serial.print(i);
+        Serial.print("\n");
+        proc_console_input(i);
     }
 }
 
@@ -174,11 +187,4 @@ uint8_t hexdigs(uint8_t c1, uint8_t c2) {
     return (hexdig(c1) << 4) | hexdig(c2);
 }
 
-
-uint8_t upperCase(uint8_t c) {
-    if( c >= 'a' && c <= 'z' )
-        return c - 'a' + 'A';
-    else
-        return c;
-}
 

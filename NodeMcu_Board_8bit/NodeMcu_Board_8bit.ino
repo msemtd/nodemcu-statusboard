@@ -8,6 +8,10 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
+#include <ctype.h>
+
+#define MSEPRODUCT "NodeMCU Board 8bit"
+#define MSEVERSION "v1.0"
 
 ESP8266WiFiMulti WiFiMulti;
 
@@ -28,23 +32,25 @@ uint32_t getLast = 0;
 
 // this is our mapping from bits to pin constants
 // we don't want to use D4 on the NodeMCU - that's the blue LED!
-const uint8_t pmap[8] = { D1, D2, D3, 0xFF, D5, D6, D7, D8 };
+// const uint8_t pmap[8] = { D1, D2, D3, 0xFF, D5, D6, D7, D8 };
 
 #define DIAG_INPUT_MAX 128
 String consoleInput = "";
 
 void setup() {
     consoleInput.reserve(DIAG_INPUT_MAX);
-    Serial.begin(115200);
+    Serial.begin(115200);   // USB UART
+    Serial1.begin(9600);    // serial UART direct onto the ProMicro pins
     Serial.setDebugOutput(true);
+    Serial.print("Starting " MSEPRODUCT " " MSEVERSION "\n\n");    
     Serial.println();
-    for(uint8_t i = 0; i < 8; i++)
-      if(pmap[i] != 0xFF) pinMode(pmap[i], OUTPUT);
+    // for(uint8_t i = 0; i < 8; i++)
+    //   if(pmap[i] != 0xFF) pinMode(pmap[i], OUTPUT);
     for(uint8_t t = 4; t > 0; t--) {
         Serial.printf("[SETUP] WAIT %d...\n", t);
         Serial.flush();
         delay(1000);
-        set_digital_outs((t%2) ? 0xFF : 0x00);
+        //set_digital_outs((t%2) ? 0xFF : 0x00);
     }
     WiFiMulti.addAP(PRIVATE_WIFI_AP_NAME, PRIVATE_WIFI_AP_PASS);
 #ifdef PRIVATE_WIFI_AP_NAME2
@@ -58,7 +64,7 @@ void setup() {
 void loop() {
     if(testmode){
         static uint8_t step = 0;
-        set_digital_outs(bit(step));
+        //set_digital_outs(bit(step));
         step = (++step)%8;
         //static bool tog = false;
         //set_digital_outs(tog ? 0x55 : 0xAA);
@@ -69,11 +75,11 @@ void loop() {
     }
 }
 
-void set_digital_outs(uint8_t b) {
-  Serial.printf("set_digital_outs %02X...\n", b);
-  for(uint8_t i = 0; i < 8; i++)
-    if(pmap[i] != 0xFF) digitalWrite(pmap[i], bitRead(b, i));
-}
+//void set_digital_outs(uint8_t b) {
+//  Serial.printf("set_digital_outs %02X...\n", b);
+//  for(uint8_t i = 0; i < 8; i++)
+//    if(pmap[i] != 0xFF) digitalWrite(pmap[i], bitRead(b, i));
+//}
 
 void normal_mode() {
     uint32_t now = millis();
@@ -87,7 +93,6 @@ void normal_mode() {
 }
 
 void proc_console_input(int data) {
-    // TODO buffer and inspect - look for markers etc.
     // input is processed upon CR or NL...
     if(data == 0x0A || data == 0x0D){
         proc_console_command();
@@ -108,21 +113,42 @@ void proc_console_command() {
     int len = consoleInput.length();
     if(!len) 
         return;
-    char cmd = consoleInput[0];
+    char cmd = toupper(consoleInput[0]);
     if(cmd == '?') {
-        Serial.printf("\n? = HELP COMMAND\n");
-        Serial.printf("\nCommands available: A, B, C (case sensitive).\n");
-        // blah, blah, blah...
+        Serial.print("\n? = HELP COMMAND\n");
+        Serial.print("Commands available: -\n");
+        Serial.print("  A = Ay?\n");
+        Serial.print("  B = Be\n");
+        Serial.print("  C = See\n");
+        Serial.print("  D = Set digital items\n");
+        Serial.print("  E = Enable digital items\n");
     } else if(cmd == 'A') {
-        Serial.printf("\nAY?\n");
+        Serial.print("\nAY?\n");
     } else if(cmd == 'B') {
-        Serial.printf("\nBe what?\n");
+        Serial.print("\nBe what?\n");
     } else if(cmd == 'C') {
-        Serial.printf("\nI don't see anything!\n");
-    } else {
+        Serial.print("\nI don't see anything!\n");
+    } else if(cmd == 'D') {
+        // D = Digital outputs set D<XX> where X is hex digit
+        if(len == 3) {
+            uint8_t val = hexdigs(consoleInput[1], consoleInput[2]);
+            //setItems(val);
+            Serial1.println(consoleInput);
+        }
+        Serial.print("\nOK\n");
+    } else if(cmd == 'E') {
+        // E = Enable digital outputs E<XX> where X is hex digit
+        if(len == 3) {
+            uint8_t val = hexdigs(consoleInput[1], consoleInput[2]);
+            //enableItems(val);
+            Serial1.println(consoleInput);            
+        }
+        Serial.print("\nOK\n");
+     } else {
         Serial.printf("\nI don't understand the command %c - try '?' for help.\n");
     }
 }
+
 
 void getServerData() {
     // wait for WiFi connection
@@ -170,3 +196,14 @@ void getServerData() {
     http.end();
 }
 
+// TODO look up a better version!
+uint8_t hexdig(uint8_t c) {
+    if(c >= '0' && c <= '9') return c - '0';
+    if(c >= 'A' && c <= 'F') return c - 'A' + 10; 
+    if(c >= 'a' && c <= 'f') return c - 'a' + 10; 
+    return 0;
+}
+
+uint8_t hexdigs(uint8_t c1, uint8_t c2) {
+    return (hexdig(c1) << 4) | hexdig(c2);
+}
