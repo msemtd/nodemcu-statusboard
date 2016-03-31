@@ -26,7 +26,7 @@ void setup() {
     pinModeAll(OUTPUT);
     consoleInput.reserve(DIAG_INPUT_MAX);
     Serial.begin(9600);     // serial over the USB when connected
-    Serial1.begin(9600);    // serial UART direct onto the ProMicro pins
+    Serial1.begin(115200, SERIAL_8E1);    // serial UART direct onto the ProMicro pins
     Serial.print("Starting " MSEPRODUCT " " MSEVERSION "\n\n");
     for (int i = 0; i < 16; i++) { // all off
         digitalWrite(d_map[i], LOW);

@@ -39,9 +39,9 @@ String consoleInput = "";
 
 void setup() {
     consoleInput.reserve(DIAG_INPUT_MAX);
-    Serial.begin(115200);   // USB UART
-    Serial1.begin(9600);    // serial UART direct onto the ProMicro pins
-    Serial.setDebugOutput(true);
+    Serial.begin(9600);   // USB UART
+    Serial1.begin(115200, SERIAL_8E1);    // serial UART direct onto the ProMicro pins
+    Serial.setDebugOutput(false);
     Serial.print("Starting " MSEPRODUCT " " MSEVERSION "\n\n");    
     Serial.println();
     // for(uint8_t i = 0; i < 8; i++)
@@ -59,6 +59,7 @@ void setup() {
 #ifdef PRIVATE_WIFI_AP_NAME3
     WiFiMulti.addAP(PRIVATE_WIFI_AP_NAME3, PRIVATE_WIFI_AP_PASS3);
 #endif
+    // Serial.swap();
 }
 
 void loop() {
