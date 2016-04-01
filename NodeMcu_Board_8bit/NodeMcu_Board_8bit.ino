@@ -182,6 +182,7 @@ void getServerData() {
                     int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
                     // write it to Serial
                     Serial.write(buff, c);
+                    process_server_bytes(len, buff, c);
                     if(len > 0) {
                         len -= c;
                     }
@@ -195,6 +196,26 @@ void getServerData() {
         Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
     }
     http.end();
+}
+
+void process_server_bytes(int len, uint8_t *buf, int c) {
+    // cheat a bit and just treat the chunk of bytes as the whole response
+    Serial.printf("buf[%d] of remaining %d\n", c, len);
+    // BOARD:1:aa
+    if(c >= 10) {
+        if(!strncmp((const char*)buf, "BOARD:", 6)){
+            Serial.printf("found board start\n");
+            if(isdigit(buf[6]) && buf[7] == ':'){
+                uint8_t b = buf[6] - '0';
+                Serial.printf("board num %d\n", b);
+                // TODO check board num!!!!
+                uint8_t val = hexdigs(buf[8], buf[9]);
+                Serial.printf("board value = 0x%02X\n", val);
+                Serial1.printf("D%02X\n", val);
+            }
+        }
+    }
+
 }
 
 // TODO look up a better version!
