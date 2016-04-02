@@ -26,9 +26,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="516.01516"
-     inkscape:cy="53.039608"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="470.63363"
+     inkscape:cy="522.57175"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -298,5 +298,101 @@
        width="10.575989"
        id="rect3025"
        style="fill:#00ff7f;stroke:#a0522d;stroke-width:0.02822222000000000;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-size:11.28888893px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Amplify Personal Use Only;-inkscape-font-specification:Amplify Personal Use Only"
+       x="27.576782"
+       y="290.92947"
+       id="text3012"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3014"
+         x="27.576782"
+         y="290.92947"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono">First Aid Kits</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3016"
+       y="313.83026"
+       x="27.576782"
+       style="font-size:11.28888893px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Amplify Personal Use Only;-inkscape-font-specification:Amplify Personal Use Only"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono"
+         y="313.83026"
+         x="27.576782"
+         id="tspan3018"
+         sodipodi:role="line">Laser Cutter</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:11.28888893px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Amplify Personal Use Only;-inkscape-font-specification:Amplify Personal Use Only"
+       x="27.576782"
+       y="336.95978"
+       id="text3020"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3022"
+         x="27.576782"
+         y="336.95978"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono">Table Saw</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3024"
+       y="359.92947"
+       x="27.576782"
+       style="font-size:11.28888893px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Amplify Personal Use Only;-inkscape-font-specification:Amplify Personal Use Only"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono"
+         y="359.92947"
+         x="27.576782"
+         id="tspan3026"
+         sodipodi:role="line">Bandsaw 1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:11.28888893px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Amplify Personal Use Only;-inkscape-font-specification:Amplify Personal Use Only"
+       x="27.576782"
+       y="381.79672"
+       id="text3028"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3030"
+         x="27.576782"
+         y="381.79672"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono">Fridge</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3032"
+       y="405.92947"
+       x="27.576782"
+       style="font-size:11.28888893px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Amplify Personal Use Only;-inkscape-font-specification:Amplify Personal Use Only"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono"
+         y="405.92947"
+         x="27.576782"
+         id="tspan3034"
+         sodipodi:role="line">Knife Switch</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:11.28888893px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Amplify Personal Use Only;-inkscape-font-specification:Amplify Personal Use Only"
+       x="27.576782"
+       y="428.83026"
+       id="text3036"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3038"
+         x="27.576782"
+         y="428.83026"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono">Server 1</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3040"
+       y="451.95978"
+       x="27.576782"
+       style="font-size:11.28888893px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Amplify Personal Use Only;-inkscape-font-specification:Amplify Personal Use Only"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono"
+         y="451.95978"
+         x="27.576782"
+         id="tspan3042"
+         sodipodi:role="line">Belt Sander</tspan></text>
   </g>
 </svg>
