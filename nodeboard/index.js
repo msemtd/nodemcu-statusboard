@@ -36,7 +36,8 @@ sbr.get('/:board(\\d+)/:style?', function(req, res, next){
     console.log('value for board '+ bnum + ' is ' + bval);
     if((style) && (style == 'nodemcu')) {
         // NodeMCU style plain text response
-        res.send('BOARD:' + bnum + ':' + bval.toString(16));
+        var hexval = ("00" + bnum.toString(16)).slice(-2);
+        res.send('BOARD:' + bnum + ':' + hexval);
     } else {
         // HTML style as a nice table
         avoidCache(res)
