@@ -32,11 +32,11 @@ sbr.get('/:board(\\d+)/:style?', function(req, res, next){
     var remote = req.connection.remoteAddress;
     console.log('req for '+ bnum + ' on ' + req.originalUrl + ' with style ' + style + ' for ' + remote);
     // lookup board value and serve in chosen style
-	var bval = app.locals.boards.getBoardVal(bnum-1);
+    var bval = app.locals.boards.getBoardVal(bnum-1);
     console.log('value for board '+ bnum + ' is ' + bval);
     if((style) && (style == 'nodemcu')) {
         // NodeMCU style plain text response
-        var hexval = ("00" + bnum.toString(16)).slice(-2);
+        var hexval = ("00" + bval.toString(16)).slice(-2);
         res.send('BOARD:' + bnum + ':' + hexval);
     } else {
         // HTML style as a nice table
