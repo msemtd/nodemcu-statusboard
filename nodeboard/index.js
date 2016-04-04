@@ -2,8 +2,6 @@
 TODO: -
 * Get info from sources
 * Web form page generator
-* multiple boards
-* cache values between runs or just get from source again
 * security - user logins, tokens etc.
 *
 */
@@ -18,9 +16,6 @@ app.use(favicon(path.join(__dirname, 'favicon.ico')));
 app.locals.boards = require('./boards');
 app.locals.boards.load();
 
-// TODO: currently only supporting one board
-var boardval = 0x00;
-
 app.get('/', function (req, res) {
     console.log('serving root');
     res.send('Hello! Nothing to see here!');
@@ -32,32 +27,33 @@ app.get('/', function (req, res) {
 var sbr = express.Router();
 // GET handler for board number
 sbr.get('/:board(\\d+)/:style?', function(req, res, next){
-    var board = req.params.board;
+    var bnum = req.params.board;
     var style = req.params.style;
     var remote = req.connection.remoteAddress;
-    console.log('sbr for '+ board + ' on ' + req.originalUrl + ' with style ' + style + ' for ' + remote);
-    // TODO lookup board value and serve in style
+    console.log('req for '+ bnum + ' on ' + req.originalUrl + ' with style ' + style + ' for ' + remote);
+    // lookup board value and serve in chosen style
+	var bval = app.locals.boards.getBoardVal(bnum-1);
+    console.log('value for board '+ bnum + ' is ' + bval);
     if((style) && (style == 'nodemcu')) {
         // NodeMCU style plain text response
-        res.send('BOARD:' + board + ':' + boardval.toString(16));
+        res.send('BOARD:' + bnum + ':' + bval.toString(16));
     } else {
         // HTML style as a nice table
         avoidCache(res)
-        res.send(getBoardHtml(board, boardval));
+        res.send(getBoardHtml(bnum, bval));
     }
 });
 // GET setter - BAD API!!!!
 // requires board id of digits and a hex value
 sbr.get('/set/:board(\\d+)/:newval(0x[0-9a-fA-F]{2})', function(req, res, next){
-    var board = req.params.board;
+    var bnum = req.params.board;
     var newval = parseInt(req.params.newval, 16);
-    console.log('sbr set '+ board + ' to ' + newval);
-    // TODO lookup board value and serve in style
+    console.log('sb set '+ bnum + ' to ' + newval);
     if (isNaN(newval)) {
         next();
     } else {
-        boardval = newval;
-        res.send('OK set board '+ board + ' to decimal ' + newval);
+		app.locals.boards.setBoardVal(bnum-1, newval);
+        res.send('OK set board '+ bnum + ' to decimal ' + newval);
     }
 });
 app.use("/sb", sbr);
@@ -71,7 +67,7 @@ app.listen(port, function () {
     console.log('app listening on port '+ port);
 });
 
-function getBoardHtml(board, val) {
+function getBoardHtml(bnum, val) {
     // get binary values from 2 hex digits
     var hexval = ("00" + val.toString(16)).slice(-2);
     var binval_str = ("00000000" + val.toString(2)).slice(-8);
@@ -95,10 +91,10 @@ function getBoardHtml(board, val) {
     var html = `
     <HTML>
     <head>
-    <title>STATUSBOARD ${board}</title>
+    <title>STATUSBOARD ${bnum}</title>
     </head>
     <BODY>
-    <H1>STATUSBOARD ${board}</H1>
+    <H1>STATUSBOARD ${bnum}</H1>
     <DIV>VALUE = 0x${hexval}</DIV>
     <DIV>VALUE(BIN) = ${binval_str}</DIV>
     ${table}

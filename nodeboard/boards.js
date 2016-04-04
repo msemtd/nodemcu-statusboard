@@ -33,16 +33,16 @@ var boardsdata = [
 ];
 
 function getBoardVal(idx) {
-    if(idx > 0 && idx < boardsdata.length){
-        return boardsdata[idx].value;
+    if(idx >= 0 && idx < boardsdata.length){
+        return boardsdata[idx].numval;
     } else {
         return 666;
     }
 }
 
 function setBoardVal(idx, newval) {
-    if(idx > 0 && idx < boardsdata.length){
-        boardsdata[idx] = newval;
+    if(idx >= 0 && idx < boardsdata.length){
+        boardsdata[idx].numval = newval;
     }
 }
 
@@ -71,10 +71,6 @@ function save() {
         console.log(e.message);
         console.log("failed to save boards!");
     }
-}
-
-function getval(idx){
-    
 }
 
 exports.getBoardVal = getBoardVal;
