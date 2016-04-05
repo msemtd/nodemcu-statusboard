@@ -34,14 +34,19 @@ sbr.get('/:board(\\d+)/:style?', function(req, res, next){
     // lookup board value and serve in chosen style
     var bval = app.locals.boards.getBoardVal(bnum-1);
     console.log('value for board '+ bnum + ' is ' + bval);
+    if (bval === undefined) {
+        next();
+        return;
+    }
     if((style) && (style == 'nodemcu')) {
         // NodeMCU style plain text response
-        var hexval = ("00" + bval.toString(16)).slice(-2);
+        var hexval = hexByte(bval);
         res.send('BOARD:' + bnum + ':' + hexval);
     } else {
         // HTML style as a nice table
         avoidCache(res)
-        res.send(getBoardHtml(bnum, bval));
+        var labels = app.locals.boards.getBoardLabels(bnum-1);
+        res.send(getBoardHtml(bnum, bval, labels));
     }
 });
 // GET setter - BAD API!!!!
@@ -49,12 +54,15 @@ sbr.get('/:board(\\d+)/:style?', function(req, res, next){
 sbr.get('/set/:board(\\d+)/:newval(0x[0-9a-fA-F]{2})', function(req, res, next){
     var bnum = req.params.board;
     var newval = parseInt(req.params.newval, 16);
-    console.log('sb set '+ bnum + ' to ' + newval);
+    var hexval = hexByte(newval);
+    console.log('sb set '+ bnum + ' to ' + newval + ' = hex ' + hexval);
     if (isNaN(newval)) {
         next();
+        return;
     } else {
 		app.locals.boards.setBoardVal(bnum-1, newval);
-        res.send('OK set board '+ bnum + ' to decimal ' + newval);
+        res.send('OK set board '+ bnum + ' to decimal ' + newval + ' = hex ' + hexval);
+        app.locals.boards.save();
     }
 });
 app.use("/sb", sbr);
@@ -68,22 +76,32 @@ app.listen(port, function () {
     console.log('app listening on port '+ port);
 });
 
-function getBoardHtml(bnum, val) {
+function getBoardHtml(bnum, val, labels) {
     // get binary values from 2 hex digits
-    var hexval = ("00" + val.toString(16)).slice(-2);
-    var binval_str = ("00000000" + val.toString(2)).slice(-8);
+    var hexval = hexByte(val);
+    var binval_str = binByte(val);
     var rowtext = "";
-    var bitc = 0;
-    for (var v of binval_str) {
-        rowtext += `
-        <tr> <td>BIT ${bitc}</td> <td>${v}</td> </tr>
+    for (var i = 0; i < 8; i++) {
+        var b = binval_str.charAt(7-i);
+        var lab = labels ? labels[i] : "Not Set";
+        var cla = (b == '1') ? 'binon' : 'binoff';
+        rowtext += `<tr> <td>BIT ${i}</td> <td>${lab}</td>  <td class="${cla}">${b}</td> </tr>
         `;
-        bitc++;
     }
+    var css = `
+        body {background-color: lightgrey; color: #000050; border-width: 3em; font-family: Arial,Helvetica,sans-serif;}
+        h1   {color: blue;}
+        p    {color: green;}
+        table.bins {border: 1px solid black; border-spacing: 5px;}
+        th, td { padding: 5px; }
+        td.binon  {background-color: #33FF33;}
+        td.binoff  {background-color: red;}
+    `;
     var table = `
-    <table border="1">
+    <table class="bins">
     <tr>
     <th>Item</th>
+    <th>Label</th>
     <th>Value</th>
     </tr>
     ${rowtext}
@@ -93,11 +111,16 @@ function getBoardHtml(bnum, val) {
     <HTML>
     <head>
     <title>STATUSBOARD ${bnum}</title>
+    <style>
+    ${css}
+    </style>
     </head>
     <BODY>
     <H1>STATUSBOARD ${bnum}</H1>
-    <DIV>VALUE = 0x${hexval}</DIV>
-    <DIV>VALUE(BIN) = ${binval_str}</DIV>
+    <DIV>
+    <pre>Value (HEX) = 0x${hexval}</pre>
+    <pre>Value (BIN) = ${binval_str}</pre>
+    </DIV>
     ${table}
     </BODY>
     </HTML>
@@ -109,4 +132,16 @@ function avoidCache(res) {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
     res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
     res.setHeader("Expires", "0"); // Proxies.
+}
+
+function hexByte(x) {
+    x = Number(x);
+    if (Number.isNaN(x)) x = 0;    
+    return ("00" + x.toString(16).toUpperCase()).slice(-2);
+}
+
+function binByte(x) {
+    x = Number(x);
+    if (Number.isNaN(x)) x = 0;    
+    return ("00000000" + x.toString(2)).slice(-8);
 }

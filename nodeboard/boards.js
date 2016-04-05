@@ -32,18 +32,27 @@ var boardsdata = [
     },
 ];
 
+function checkBoardIndex(idx) {
+    if(!Array.isArray(boardsdata)) 
+        return false;
+    if (Number.isNaN(idx) || idx < 0 || idx >= boardsdata.length)
+        return false;
+    return true;
+}
+
 function getBoardVal(idx) {
-    if(idx >= 0 && idx < boardsdata.length){
-        return boardsdata[idx].numval;
-    } else {
-        return 666;
-    }
+    if(!checkBoardIndex(idx)) return undefined;
+    return boardsdata[idx].numval;
 }
 
 function setBoardVal(idx, newval) {
-    if(idx >= 0 && idx < boardsdata.length){
-        boardsdata[idx].numval = newval;
-    }
+    if(!checkBoardIndex(idx)) return undefined;
+    boardsdata[idx].numval = newval;
+}
+
+function getBoardLabels(idx) {
+    if(!checkBoardIndex(idx)) return undefined;
+    return boardsdata[idx].labels;
 }
 
 function load() {
@@ -54,7 +63,7 @@ function load() {
         console.log(d);
         if(Array.isArray(d)){
             boardsdata = d; // TODO proper checking!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        }
+        } else throw "whut?";
     } catch (e) {
         console.log(e.message);
         console.log("Resort to using default boards!");
@@ -73,8 +82,10 @@ function save() {
     }
 }
 
+exports.checkBoardIndex = checkBoardIndex;
 exports.getBoardVal = getBoardVal;
 exports.setBoardVal = setBoardVal;
+exports.getBoardLabels = getBoardLabels;
 exports.load = load;
 exports.save = save;
 
