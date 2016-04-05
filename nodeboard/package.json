@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "Simple server for NodeMCU status boards",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Michael Erskine <msemtd@googlemail.com> (https://wiki.nottinghack.org.uk/wiki/User:Msemtd)",
   "license": "ISC",
   "dependencies": {
     "console-stamp": "^0.2.0",
