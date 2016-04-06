@@ -166,34 +166,27 @@ void getServerData() {
         Serial.printf("[HTTP] GET... code: %d\n", httpCode);
         // file found at server
         if(httpCode == HTTP_CODE_OK) {
-            // get length of document (is -1 when Server sends no Content-Length header)
-            int len = http.getSize();
-            // create buffer for read
-            uint8_t buff[128] = { 0 };
-            // get tcp stream
-            WiFiClient * stream = http.getStreamPtr();
-            // read all data from server
-            while(http.connected() && (len > 0 || len == -1)) {
-                // get available data size
-                size_t size = stream->available();
-                if(size) {
-                    // read up to 128 byte
-                    int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
-                    // write it to Serial
-                    Serial.write(buff, c);
-                    if(len > 0) {
-                        len -= c;
-                    }
-                }
-                delay(1);
+            // file found at server
+            if(httpCode == HTTP_CODE_OK) {
+                String payload = http.getString();
+                procBoard(payload);
+                Serial.println(payload);
+                
             }
-            Serial.println();
-            Serial.print("[HTTP] connection closed or file end.\n");
         }
     } else {
         Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
     }
     http.end();
+}
+
+void procBoard(const String& info) {
+    Serial.println("Server says...");
+    Serial.println(info);
+    if(info.startsWith("BOARD:1:")){
+        Serial.println("board looks right");
+        // TODO
+    }
 }
 
 // TODO look up a better version!
