@@ -33,14 +33,14 @@ sbr.get('/:board(\\d+)/:style?', function(req, res, next){
     console.log('req for '+ bnum + ' on ' + req.originalUrl + ' with style ' + style + ' for ' + remote);
     // lookup board value and serve in chosen style
     var bval = app.locals.boards.getBoardVal(bnum-1);
-    console.log('value for board '+ bnum + ' is ' + bval);
+    var hexval = hexByte(bval);
+    console.log('value for board '+ bnum + ' is ' + bval + ' = hex ' + hexval);
     if (bval === undefined) {
         next();
         return;
     }
     if((style) && (style == 'nodemcu')) {
         // NodeMCU style plain text response
-        var hexval = hexByte(bval);
         res.send('BOARD:' + bnum + ':' + hexval);
     } else {
         // HTML style as a nice table
@@ -76,10 +76,15 @@ app.listen(port, function () {
     console.log('app listening on port '+ port);
 });
 
+function getUptime() {
+    return process.uptime();
+}
+
 function getBoardHtml(bnum, val, labels) {
     // get binary values from 2 hex digits
     var hexval = hexByte(val);
     var binval_str = binByte(val);
+    var uptime = getUptime();
     var rowtext = "";
     for (var i = 0; i < 8; i++) {
         var b = binval_str.charAt(7-i);
@@ -122,6 +127,7 @@ function getBoardHtml(bnum, val, labels) {
     <pre>Value (BIN) = ${binval_str}</pre>
     </DIV>
     ${table}
+    <pre>Server Uptime = ${uptime}</pre>
     </BODY>
     </HTML>
     `;
