@@ -1,7 +1,12 @@
 /**
  *  Based on the example StreamHTTPClient.ino
  *  Just a tester for simple status board HTTP client - connects to a simple NodeJS server to get some digital outputs
+ *  The nodeboard server responds to the GET with "BOARD:<n>:<XX>" 
+ *  where n is the board number and XX is 8-bit value as leading zero padded 2 digit hex.
+ *  
+ *  TODO: support boards other than 1 - this should be soft configurable
  *
+ *  TODO: present the startup state in some manner (STARTUP, GET_CONFIG, CONNECT_AP, AP_OK, GET_NODE_START, RUNNING, LOST_CONN, etc)
  */
 
 #include <Arduino.h>
@@ -170,8 +175,6 @@ void getServerData() {
             if(httpCode == HTTP_CODE_OK) {
                 String payload = http.getString();
                 procBoard(payload);
-                Serial.println(payload);
-                
             }
         }
     } else {
@@ -183,13 +186,17 @@ void getServerData() {
 void procBoard(const String& info) {
     Serial.println("Server says...");
     Serial.println(info);
-    if(info.startsWith("BOARD:1:")){
-        Serial.println("board looks right");
-        // TODO
+    if(!info.startsWith("BOARD:1:") || info.length() != 10){
+        Serial.println("not our board response");
+        return;
     }
+    // if we want some normalisation...
+    // uint8_t v = hexdigs(info.charAt(8), info.charAt(9));
+    // Serial1.printf("D%02X\n", v);
+    Serial1.printf("D%c%c\n", info.charAt(8), info.charAt(9));
+    Serial.printf("Sent D%c%c to I/O board\n", info.charAt(8), info.charAt(9));
 }
 
-// TODO look up a better version!
 uint8_t hexdig(uint8_t c) {
     if(c >= '0' && c <= '9') return c - '0';
     if(c >= 'A' && c <= 'F') return c - 'A' + 10; 
