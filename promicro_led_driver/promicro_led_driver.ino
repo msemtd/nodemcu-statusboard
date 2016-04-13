@@ -175,7 +175,6 @@ void proc_console_command() {
     }
 }
 
-// TODO look up a better version!
 uint8_t hexdig(uint8_t c) {
     if(c >= '0' && c <= '9') return c - '0';
     if(c >= 'A' && c <= 'F') return c - 'A' + 10; 

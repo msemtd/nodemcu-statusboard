@@ -38,7 +38,7 @@ String consoleInput = "";
 
 void setup() {
     consoleInput.reserve(DIAG_INPUT_MAX);
-    Serial.begin(115200);   // USB UART
+    Serial.begin(9600);   // USB UART
     Serial1.begin(9600);    // serial UART direct onto the ProMicro pins
     Serial.setDebugOutput(true);
     Serial.print("Starting " MSEPRODUCT " " MSEVERSION "\n\n");    
@@ -111,8 +111,7 @@ void proc_console_command() {
         // D = Digital outputs set D<XX> where X is hex digit
         if(len == 3) {
             uint8_t val = hexdigs(consoleInput[1], consoleInput[2]);
-            //setItems(val);
-            Serial1.println(consoleInput);
+            setBoard(val);
         }
         Serial.print("\nOK\n");
     } else if(cmd == 'E') {
@@ -164,13 +163,13 @@ void procBoard(const String& info) {
         Serial.println("not our board response");
         return;
     }
-    // if we want some normalisation...
-    // uint8_t v = hexdigs(info.charAt(8), info.charAt(9));
-    // Serial1.printf("D%02X\n", v);
-    Serial1.printf("D%c%c\n", info.charAt(8), info.charAt(9));
-    Serial.printf("Sent D%c%c to I/O board\n", info.charAt(8), info.charAt(9));
+    setBoard(hexdigs(info.charAt(8), info.charAt(9)));
 }
 
+void setBoard(uint8_t val) {
+    Serial1.printf("D%02X\n", val);
+    Serial.printf("Sent command D%02X to I/O board\n", val);
+}
 uint8_t hexdig(uint8_t c) {
     if(c >= '0' && c <= '9') return c - '0';
     if(c >= 'A' && c <= 'F') return c - 'A' + 10; 
