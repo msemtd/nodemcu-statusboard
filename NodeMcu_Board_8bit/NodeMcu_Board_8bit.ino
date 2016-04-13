@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #define MSEPRODUCT "NodeMCU Board 8bit"
-#define MSEVERSION "v1.0"
+#define MSEVERSION "v1.1"
 
 ESP8266WiFiMulti WiFiMulti;
 
@@ -30,14 +30,8 @@ ESP8266WiFiMulti WiFiMulti;
 #define PRIVATE_NODEJS_PATH "/sb/1/nodemcu"
 #endif
 
-bool testmode = false;
-
 uint32_t getFreq = 10000;
 uint32_t getLast = 0;
-
-// this is our mapping from bits to pin constants
-// we don't want to use D4 on the NodeMCU - that's the blue LED!
-// const uint8_t pmap[8] = { D1, D2, D3, 0xFF, D5, D6, D7, D8 };
 
 #define DIAG_INPUT_MAX 128
 String consoleInput = "";
@@ -67,27 +61,7 @@ void setup() {
 }
 
 void loop() {
-    if(testmode){
-        static uint8_t step = 0;
-        //set_digital_outs(bit(step));
-        step = (++step)%8;
-        //static bool tog = false;
-        //set_digital_outs(tog ? 0x55 : 0xAA);
-        //tog = !tog;
-        delay(1000);
-    } else {
-        normal_mode();
-    }
-}
-
-//void set_digital_outs(uint8_t b) {
-//  Serial.printf("set_digital_outs %02X...\n", b);
-//  for(uint8_t i = 0; i < 8; i++)
-//    if(pmap[i] != 0xFF) digitalWrite(pmap[i], bitRead(b, i));
-//}
-
-void normal_mode() {
-    uint32_t now = millis();
+     uint32_t now = millis();
     if(now - getLast >= getFreq) {
         getLast = now;
         getServerData();
