@@ -55,15 +55,35 @@ sbr.get('/set/:board(\\d+)/:newval(0x[0-9a-fA-F]{2})', function(req, res, next){
     var bnum = req.params.board;
     var newval = parseInt(req.params.newval, 16);
     var hexval = hexByte(newval);
-    console.log('sb set '+ bnum + ' to ' + newval + ' = hex ' + hexval);
+    var mask = parseInt(req.query.mask, 16);
+    console.log('sb set '+ bnum + ' to ' + newval + ' = hex ' + hexval );
     if (isNaN(newval)) {
         next();
         return;
     } else {
+        if(!isNaN(mask)) {
+            newval &= mask;
+            hexval = hexByte(newval);
+            console.log('...masked to '+newval + ' = hex ' + hexval );
+        }
 		app.locals.boards.setBoardVal(bnum-1, newval);
         res.send('OK set board '+ bnum + ' to decimal ' + newval + ' = hex ' + hexval);
         app.locals.boards.save();
     }
+});
+sbr.get(
+        '/setbit/:board(\\d+)/:bitpos([0-7])/:bitval([0-1])', 
+        function(req, res, next){
+    var bnum = req.params.board;
+    var bitpos = parseInt(req.params.bitpos, 10);
+    var bitval = parseInt(req.params.bitval, 10);
+    console.log('sb set '+ bnum + ' bit[' + bitpos + '] to ' + bitval );
+    var val = app.locals.boards.getBoardVal(bnum-1);
+    var newval = setClearBit(val, bitpos, bitval);
+    var hexval = hexByte(newval);
+    app.locals.boards.setBoardVal(bnum-1, newval);
+    res.send('OK set board '+ bnum + ' to decimal ' + newval + ' = hex ' + hexval);
+    app.locals.boards.save();
 });
 app.use("/sb", sbr);
 
@@ -150,4 +170,14 @@ function binByte(x) {
     x = Number(x);
     if (Number.isNaN(x)) x = 0;    
     return ("00000000" + x.toString(2)).slice(-8);
+}
+
+function setClearBit(x, bitpos, set) {
+    console.log('setClearBit on '+binByte(x)+' bitpos = '+bitpos + ' set to ' + set );
+    var mask = 1 << bitpos;
+    console.log('mask is ' + binByte(mask));
+    x = set ? (x | mask) : (x & ~mask);
+    console.log('result is ' + binByte(x));
+   
+    return x;
 }
